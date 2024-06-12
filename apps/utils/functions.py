@@ -1,5 +1,5 @@
 import requests
-from flask import jsonify
+from flask import jsonify, request
 from apps import db
 from apps.models import ProductPPOB
 from apps.models import MarginOmset
@@ -99,3 +99,50 @@ def refreshPPOB():
     except requests.exceptions.RequestException as e:
         # Handle any errors from the HTTP request
         return jsonify({'status': 'error', 'message': str(e)}), 500
+
+def proxy_buzzer():
+    url_buzzerpanel = "https://buzzerpanel.id/api/json.php"
+    body_buzzerpanel = {
+        "api_key": "kl1fvb5pa4z9te3082su7qrxjcmd6o",
+        "secret_key": "uYJQ4cMAanFijWO17egthwNGp53HVkBx0PfRS8Kmo9lE2dIrvD",
+        "action": "profile"
+    }
+    try:
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        response = requests.post(url_buzzerpanel, data=body_buzzerpanel, headers=headers)
+        return jsonify(response.json())
+    except requests.RequestException as e:
+        return jsonify({"error": str(e)}), 500
+    
+def proxy_digiflazz():
+    url_digiflazz = "https://api.digiflazz.com/v1/cek-saldo"
+    body_digiflazz = {
+    "cmd": "deposit",
+    "username": "biduguopZ9GW",
+    "sign": "292426490f63163d96d5d73465d9d6e9"
+}
+    try:
+        headers = {"Content-Type": "application/json"}
+        response = requests.post(url_digiflazz, json=body_digiflazz, headers=headers)
+        return jsonify(response.json())
+    except requests.RequestException as e:
+        return jsonify({"error": str(e)}), 500
+    
+def handle_input_completion():
+    try:
+        data = request.get_json()
+        user_id = data.get('userId')
+
+        request_data = {
+            "commands": "pln-subscribe",
+            "customer_no": user_id
+        }
+        response = requests.post("https://api.digiflazz.com/v1/transaction", json=request_data, headers={
+            "Content-Type": "application/json"
+        })
+        response.raise_for_status()
+        return jsonify(response.json()), response.status_code
+
+    except requests.RequestException as e:
+        # Tangani kesalahan jika terjadi
+        return jsonify({"error": str(e)}), 500

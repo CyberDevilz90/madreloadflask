@@ -19,10 +19,12 @@ def create_app():
     from apps.user.routes import user as user_blueprint
     from apps.product.routes import product as product_blueprint
     from apps.margin.routes import margin as margin_blueprint
+    from apps.utils.routes import utils as utils_blueprint
 
     app.register_blueprint(user_blueprint, url_prefix='/user')
     app.register_blueprint(product_blueprint, url_prefix='/product')
     app.register_blueprint(margin_blueprint, url_prefix='/margin')
+    app.register_blueprint(utils_blueprint, url_prefix='/utils')
     
     with app.app_context():
         db.create_all()
