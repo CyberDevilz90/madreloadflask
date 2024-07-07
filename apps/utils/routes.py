@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from apps.utils.functions import proxy_buzzer, proxy_digiflazz, handle_input_completion
+from apps.utils.functions import proxy_buzzer, proxy_digiflazz, handle_input_completion,create_ref_id
 
 utils = Blueprint('utils', __name__)
 
@@ -14,3 +14,7 @@ def admin_digiflazz_route():
 @utils.route('/validasi-pln', methods=['POST'])
 def handle_input_route():
     return handle_input_completion()
+
+@utils.route('/ref-id', methods=['GET'])
+def get_ref():
+    return create_ref_id()

@@ -1,7 +1,7 @@
 # import requests
 from flask import jsonify
 from apps.models import MarginOmset
-from apps.utils.functions import refreshPPOB
+from apps.utils.functions import refreshPPOB, refreshSocialMedia
 from apps import db
 
 def updateMargin(request_data):
@@ -29,6 +29,7 @@ def updateMargin(request_data):
             # Commit perubahan ke basis data
             db.session.commit()
             refreshPPOB()
+            refreshSocialMedia()
             return {'status': 'success', 'message': 'Margin data updated successfully'}, 200
         else:
             return {'status': 'error', 'message': 'Margin data not found'}, 404

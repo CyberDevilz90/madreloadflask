@@ -42,12 +42,14 @@ def register(request):
         password=hashed_password, 
         token=token, 
         role_id=2, 
+        saldo=0,
         telp=telp)
     user_data = {   
         "id": new_user.id,
         "name": new_user.name,
         "email": new_user.email,
         "telp": new_user.telp,
+        "saldo": new_user.saldo
         # tambahkan atribut lain yang ingin Anda sertakan
     }
     # Tambahkan pengguna ke database
@@ -91,4 +93,4 @@ def get_user_by_token():
         "saldo": user.saldo,
         "role": user.role_id,
     }
-    return jsonify({"data": user_data}), 200
+    return user_data

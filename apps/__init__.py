@@ -14,17 +14,20 @@ def create_app():
     db.init_app(app)
     CORS(app, resources={r"/*": {"origins": "http://localhost:8080"}}, supports_credentials=True)
 
-
     # Import and register blueprints
     from apps.user.routes import user as user_blueprint
     from apps.product.routes import product as product_blueprint
     from apps.margin.routes import margin as margin_blueprint
     from apps.utils.routes import utils as utils_blueprint
+    from apps.transactions.routes import transactions as transactions_blueprint
+    from apps.history.routes import history as history_blueprint
 
     app.register_blueprint(user_blueprint, url_prefix='/user')
     app.register_blueprint(product_blueprint, url_prefix='/product')
     app.register_blueprint(margin_blueprint, url_prefix='/margin')
     app.register_blueprint(utils_blueprint, url_prefix='/utils')
+    app.register_blueprint(transactions_blueprint, url_prefix='/transactions')
+    app.register_blueprint(history_blueprint, url_prefix='/history')
     
     with app.app_context():
         db.create_all()

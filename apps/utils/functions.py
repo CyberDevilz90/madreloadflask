@@ -1,8 +1,18 @@
 import requests
+import hashlib
 from flask import jsonify, request
 from apps import db
-from apps.models import ProductPPOB
+from apps.models import ProductPPOB, ProductSocialMedia
 from apps.models import MarginOmset
+from apps.models import RefID
+from datetime import datetime
+
+current_date = datetime.now().strftime("%d%m%Y")
+counter = 0
+
+DIGIFLAZZ_API_URL = 'https://api.digiflazz.com/v1/transaction'
+DIGIFLAZZ_API_KEY = 'a8beff67-cb39-5be2-b4cf-afe22f7e0bab'
+DIGIFLAZZ_USERNAME = 'biduguopZ9GW'
 
 def getMargin():
     try:
@@ -100,6 +110,58 @@ def refreshPPOB():
         # Handle any errors from the HTTP request
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
+def refreshSocialMedia():
+    url = 'https://buzzerpanel.id/api/json.php'
+    payload = {
+        'api_key' : 'kl1fvb5pa4z9te3082su7qrxjcmd6o',
+        'secret_key' : 'uYJQ4cMAanFijWO17egthwNGp53HVkBx0PfRS8Kmo9lE2dIrvD',
+        'action' : 'services'
+    }
+    
+    try:
+        response = requests.post(url, data=payload)
+        response.raise_for_status()
+        
+        data = response.json()
+        
+        if "data" in data:
+            products = data["data"]
+            
+            ProductSocialMedia.query.delete()
+            
+            margin_data, status_code = getMargin()
+            if status_code == 200:
+                margin = margin_data[0]
+            else:
+                return jsonify(margin_data), status_code
+            
+            for item in products:
+                price_int = int(item['price'])
+                new_price_int = price_int + price_int * margin['social_media'] / 100
+                price_str = str(int(new_price_int))
+                
+                product = ProductSocialMedia(
+                id=item['id'],
+                name=item['name'],
+                price=price_str,
+                min=item['min'],
+                max=item['max'],
+                note=item['note'],
+                category=item['category'],
+                jenis=item['jenis'],
+                )
+                db.session.add(product)
+        
+            db.session.commit()
+        
+            return jsonify({'status': 'success', 'data': products}), 200
+        else:
+            return jsonify({'status': 'error', 'message': 'Unexpected response'})
+    
+    except requests.exceptions.RequestException as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+            
+
 def proxy_buzzer():
     url_buzzerpanel = "https://buzzerpanel.id/api/json.php"
     body_buzzerpanel = {
@@ -118,8 +180,8 @@ def proxy_digiflazz():
     url_digiflazz = "https://api.digiflazz.com/v1/cek-saldo"
     body_digiflazz = {
     "cmd": "deposit",
-    "username": "biduguopZ9GW",
-    "sign": "292426490f63163d96d5d73465d9d6e9"
+    "username": DIGIFLAZZ_USERNAME,
+    "sign": generate_sign(DIGIFLAZZ_USERNAME, DIGIFLAZZ_API_KEY,"depo")
 }
     try:
         headers = {"Content-Type": "application/json"}
@@ -146,3 +208,41 @@ def handle_input_completion():
     except requests.RequestException as e:
         # Tangani kesalahan jika terjadi
         return jsonify({"error": str(e)}), 500
+    
+def create_ref_id():
+    global current_date
+    global counter
+
+    # Mendapatkan tanggal saat ini
+    today_date = datetime.now().strftime("%d%m%Y")
+
+    # Reset counter jika tanggal berubah
+    if today_date != current_date:
+        current_date = today_date
+        counter = 0
+
+    # Loop untuk mencoba membuat ref_id yang unik
+    while True:
+        # Increment counter
+        counter += 1
+
+        # Membuat ref_id dengan format MR+tanggal-bulan-tahun+x
+        ref_id = f"MR{today_date}{counter:05d}"
+
+        # Cek apakah ref_id sudah ada di database
+        if not db.session.query(RefID).filter_by(code=ref_id).first():
+            # Jika tidak ada, simpan ref_id baru
+            new_ref_id = RefID(code=ref_id)
+            db.session.add(new_ref_id)
+            try:
+                db.session.commit()
+                return ref_id
+            except Exception:
+                # Jika terjadi duplikasi di commit, rollback dan coba lagi
+                db.session.rollback()
+        # Jika sudah ada, lanjutkan loop untuk mencoba ref_id baru
+        
+def generate_sign(username, api_key, ref_id):
+    sign_str = f"{username}{api_key}{ref_id}"
+    sign = hashlib.md5(sign_str.encode()).hexdigest()
+    return sign

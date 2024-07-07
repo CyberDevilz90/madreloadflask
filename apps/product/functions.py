@@ -28,3 +28,27 @@ def listProduct():
     except Exception as e:
         # Handle any errors
         return jsonify({'status': 'error', 'message': str(e)}), 500
+    
+def listSocialMedia():
+    try:
+        products = ProductSocialMedia.query.all()
+        
+        products_data = []
+        for product in products:
+            products_data.append({
+                'id': product.id,
+                'name': product.name,
+                'category': product.category,
+                'jenis': product.jenis,
+                'min': product.min,
+                'max': product.max,
+                'price': product.price,
+                'note': product.note,
+            })
+        return jsonify({'status': 'success', 'data': products_data}), 200
+    
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500

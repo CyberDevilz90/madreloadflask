@@ -22,7 +22,7 @@ class TransactionSocialMedia(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     id_pesanan = db.Column(db.Integer, unique=True, nullable=False)
-    service_id = db.Column(db.Integer, db.ForeignKey('product_social_media.id'), nullable=False)
+    service_id = db.Column(db.String, db.ForeignKey('product_social_media.id'), nullable=False)
     service_name = db.Column(db.String, nullable=False)
     price = db.Column(db.Integer, nullable=False)
     start_count = db.Column(db.String, nullable=False)
@@ -39,7 +39,6 @@ class TransactionPPOB(db.Model):
     __tablename__ = 'transaction_ppob'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    id_pesanan = db.Column(db.Integer, unique=True, nullable=False)
     product_name = db.Column(db.String, nullable=False)
     ref_id = db.Column(db.String, db.ForeignKey('ref_id.code'), nullable=False)
     customer_no = db.Column(db.String, nullable=False)
@@ -52,11 +51,11 @@ class TransactionPPOB(db.Model):
 
 class ProductSocialMedia(db.Model):
     __tablename__ = 'product_social_media'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
-    price = db.Column(db.Integer, nullable=False)
-    min = db.Column(db.Integer, nullable=False)
-    max = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.String, nullable=False)
+    min = db.Column(db.String, nullable=False)
+    max = db.Column(db.String, nullable=False)
     note = db.Column(db.String, nullable=False)
     category = db.Column(db.String, nullable=False)
     jenis = db.Column(db.String, nullable=False)
