@@ -1,10 +1,8 @@
 import requests
 import hashlib
 from flask import jsonify, request
-from apps import db
-from apps.models import ProductPPOB, ProductSocialMedia
-from apps.models import MarginOmset
-from apps.models import RefID
+from apps import db, create_app
+from apps.models import ProductPPOB, ProductSocialMedia, TransactionPPOB, MarginOmset, RefID
 from datetime import datetime
 
 current_date = datetime.now().strftime("%d%m%Y")
@@ -12,6 +10,7 @@ counter = 0
 
 DIGIFLAZZ_API_URL = 'https://api.digiflazz.com/v1/transaction'
 DIGIFLAZZ_API_KEY = 'a8beff67-cb39-5be2-b4cf-afe22f7e0bab'
+# DIGIFLAZZ_API_KEY = "dev-9790e880-5ce5-11ec-af18-b53e1be9e9ea"
 DIGIFLAZZ_USERNAME = 'biduguopZ9GW'
 
 def getMargin():
@@ -179,10 +178,10 @@ def proxy_buzzer():
 def proxy_digiflazz():
     url_digiflazz = "https://api.digiflazz.com/v1/cek-saldo"
     body_digiflazz = {
-    "cmd": "deposit",
-    "username": DIGIFLAZZ_USERNAME,
-    "sign": generate_sign(DIGIFLAZZ_USERNAME, DIGIFLAZZ_API_KEY,"depo")
-}
+        "cmd": "deposit",
+        "username": DIGIFLAZZ_USERNAME,
+        "sign": generate_sign(DIGIFLAZZ_USERNAME, DIGIFLAZZ_API_KEY, "depo")
+    }
     try:
         headers = {"Content-Type": "application/json"}
         response = requests.post(url_digiflazz, json=body_digiflazz, headers=headers)
