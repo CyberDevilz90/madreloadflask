@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint
 from apps.utils.functions import proxy_buzzer, proxy_digiflazz, handle_input_completion,create_ref_id
 
 utils = Blueprint('utils', __name__)
