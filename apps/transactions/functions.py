@@ -3,8 +3,13 @@ import hashlib
 from flask import jsonify, request
 from datetime import datetime
 from apps import db
-from apps.models import ProductPPOB, TransactionPPOB, RefID
+from apps.models import ProductPPOB, TransactionPPOB, RefID, User
 from apps.utils.functions import create_ref_id, generate_sign
+
+DIGIFLAZZ_API_URL = 'https://api.digiflazz.com/v1/transaction'
+DIGIFLAZZ_API_KEY = 'a8beff67-cb39-5be2-b4cf-afe22f7e0bab'
+# DIGIFLAZZ_API_KEY = "dev-9790e880-5ce5-11ec-af18-b53e1be9e9ea"
+DIGIFLAZZ_USERNAME = 'biduguopZ9GW'
 
 def perform_transaction_ppob():
     try:
@@ -36,6 +41,22 @@ def perform_transaction_ppob():
             "ref_id": ref_id,
             "sign": sign
         }
+        
+        # Fetch the product to get the price
+        product = ProductPPOB.query.filter_by(buyer_sku_code=buyer_sku_code).first()
+        if not product:
+            return jsonify({"error": "Invalid buyer_sku_code"}), 400
+
+        product_price = product.price
+
+        response = requests.post(url, json=payload)
+        
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        if user.saldo < product_price:
+            return jsonify({"error": "Insufficient balance"}), 400
 
         response = requests.post(url, json=payload)
         
@@ -43,13 +64,13 @@ def perform_transaction_ppob():
             data = response.json()
             if 'data' in data:
                 transaction_data = data['data']
-                product = ProductPPOB.query.filter_by(buyer_sku_code=buyer_sku_code).first()
+                user.saldo -= product_price
                 new_transaction = TransactionPPOB(
                     user_id=user_id,
                     product_name=product.product_name if product else "",
                     ref_id=ref_id,
                     customer_no=customer_no,
-                    price=transaction_data['price'],
+                    price=product_price,
                     buyer_sku_code=buyer_sku_code,
                     message=transaction_data['message'],
                     status=transaction_data['status'],
