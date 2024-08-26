@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from apps.history.functions import getHistoryPPOB,getTransactionStatus
+from apps.history.functions import getHistoryPPOB,getTransactionStatus, getHistorySSM
 from apps.user.functions import get_user_by_token
 
 history = Blueprint('history', __name__)
@@ -10,6 +10,14 @@ def get_ppob_history():
     
     user_id = user_data['id']
     history_data, status_code = getHistoryPPOB(user_id)
+    return jsonify({"data": history_data}), status_code
+
+@history.route('/smm', methods=['GET'])
+def get_ppob_smm():
+    user_data = get_user_by_token()
+    
+    user_id = user_data['id']
+    history_data, status_code = getHistorySSM(user_id)
     return jsonify({"data": history_data}), status_code
 
 @history.route('/status', methods=['POST'])
