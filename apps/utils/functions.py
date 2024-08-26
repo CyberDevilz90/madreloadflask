@@ -13,6 +13,10 @@ DIGIFLAZZ_API_KEY = 'a8beff67-cb39-5be2-b4cf-afe22f7e0bab'
 # DIGIFLAZZ_API_KEY = "dev-9790e880-5ce5-11ec-af18-b53e1be9e9ea"
 DIGIFLAZZ_USERNAME = 'biduguopZ9GW'
 
+BUZZERPANEL_URL = 'https://buzzerpanel.id/api/json.php'
+BUZZERPANEL_API_KEY = 'kl1fvb5pa4z9te3082su7qrxjcmd6o'
+BUZZERPANEL_SECRET_KEY = 'uYJQ4cMAanFijWO17egthwNGp53HVkBx0PfRS8Kmo9lE2dIrvD'
+
 def getMargin():
     try:
         margin = MarginOmset.query.all()
@@ -39,7 +43,7 @@ def refreshPPOB():
     url = 'https://api.digiflazz.com/v1/price-list'
     payload = {
         "cmd" : "prepaid",
-        "username": "biduguopZ9GW",
+        "username": DIGIFLAZZ_USERNAME,
         "sign": "31c39f657218b2066b9ab907fe1361aa"
             }
 
@@ -110,10 +114,10 @@ def refreshPPOB():
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 def refreshSocialMedia():
-    url = 'https://buzzerpanel.id/api/json.php'
+    url = BUZZERPANEL_URL
     payload = {
-        'api_key' : 'kl1fvb5pa4z9te3082su7qrxjcmd6o',
-        'secret_key' : 'uYJQ4cMAanFijWO17egthwNGp53HVkBx0PfRS8Kmo9lE2dIrvD',
+        'api_key' : BUZZERPANEL_API_KEY,
+        'secret_key' : BUZZERPANEL_SECRET_KEY,
         'action' : 'services'
     }
     
@@ -162,10 +166,10 @@ def refreshSocialMedia():
             
 
 def proxy_buzzer():
-    url_buzzerpanel = "https://buzzerpanel.id/api/json.php"
+    url_buzzerpanel = BUZZERPANEL_URL
     body_buzzerpanel = {
-        "api_key": "kl1fvb5pa4z9te3082su7qrxjcmd6o",
-        "secret_key": "uYJQ4cMAanFijWO17egthwNGp53HVkBx0PfRS8Kmo9lE2dIrvD",
+        "api_key": BUZZERPANEL_API_KEY,
+        "secret_key": BUZZERPANEL_SECRET_KEY,
         "action": "profile"
     }
     try:
