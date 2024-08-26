@@ -1,5 +1,5 @@
 import requests
-from apps.models import TransactionPPOB
+from apps.models import TransactionPPOB, TransactionSocialMedia
 from flask import jsonify, request
 from apps import db
 from apps.utils.functions import generate_sign
@@ -26,6 +26,30 @@ def getHistoryPPOB(user_id):
             })
             
         return ppob_data, 200
+    
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+    
+def getHistorySSM(user_id):
+    try:
+        ssm = TransactionSocialMedia.query.filter_by(user_id=user_id).all()
+        
+        ssm_data = []
+        for i in ssm:
+            ssm_data.append({
+                'id': i.id,
+                'service_id': i.service_id,
+                'service_name': i.service_name,
+                'price': i.price,
+                'start_count': i.start_count,
+                'remains': i.remains,
+                'status': i.status,
+                'tanggal_order': i.tanggal_order,
+                'data': i.data,
+                'quantity': i.quantity,
+            })
+            
+        return ssm_data, 200
     
     except Exception as e:
         return {'status': 'error', 'message': str(e)}, 500
