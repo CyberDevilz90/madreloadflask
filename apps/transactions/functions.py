@@ -139,6 +139,15 @@ def perform_transaction_sosmed():
 
         service_name = product.name
         
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        if user.saldo < price:
+            return jsonify({"error": "Insufficient balance"}), 400
+        
+        user.saldo -= price
+        
         new_transaction = TransactionSocialMedia(
             user_id=user_id,
             service_id=service,
