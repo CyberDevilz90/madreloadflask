@@ -22,6 +22,7 @@ def getHistoryPPOB(user_id):
                 'buyer_sku_code': i.buyer_sku_code,
                 'price': i.price,
                 'status': i.status,
+                'sn': i.sn,
                 'tanggal_order': i.tanggal_order
             })
             
