@@ -147,7 +147,7 @@ def update_pending_smm():
 if __name__ == "__main__":
     scheduler = BackgroundScheduler()
     scheduler.add_job(update_pending_transactions, 'interval', minutes=1)
-    scheduler.add_job(update_pending_smm, 'interval', minutes=1)
+    scheduler.add_job(update_pending_smm, 'interval', minutes=60)
     scheduler.start()
     
     try:
