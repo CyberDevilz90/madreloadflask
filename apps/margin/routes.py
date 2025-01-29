@@ -10,5 +10,12 @@ def _1():
 
 @margin.route('/update-margin', methods=['POST'])
 def _2():
-    request_data = request.json  # Dapatkan data dari badan permintaan
-    return updateMargin(request_data)
+    try:
+        request_data = request.json  # Dapatkan data dari badan permintaan
+        if not request_data:
+            return {"error": "No JSON payload provided"}, 400
+        return updateMargin(request_data)
+    except Exception as e:
+        print("Error in updateMargin: %s", e)
+        return {"error": str(e)}, 500
+    
