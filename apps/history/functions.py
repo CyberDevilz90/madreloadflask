@@ -1,12 +1,20 @@
+import os
 import requests
 from apps.models import TransactionPPOB, TransactionSocialMedia
 from flask import jsonify, request
 from apps import db
 from apps.utils.functions import generate_sign
+from dotenv import load_dotenv
+load_dotenv()
 
-DIGIFLAZZ_API_URL = 'https://api.digiflazz.com/v1/transaction'
-DIGIFLAZZ_API_KEY = 'a8beff67-cb39-5be2-b4cf-afe22f7e0bab'
-DIGIFLAZZ_USERNAME = 'biduguopZ9GW'
+DIGIFLAZZ_API_URL = os.getenv('DIGIFLAZZ_API_URL')
+DIGIFLAZZ_API_KEY = os.getenv('DIGIFLAZZ_API_KEY')
+# DIGIFLAZZ_API_KEY = os.getenv()
+DIGIFLAZZ_USERNAME = os.getenv('DIGIFLAZZ_USERNAME')
+
+BUZZERPANEL_URL = os.getenv('BUZZERPANEL_URL')
+BUZZERPANEL_API_KEY = os.getenv('BUZZERPANEL_API_KEY')
+BUZZERPANEL_SECRET_KEY = os.getenv('BUZZERPANEL_SECRET_KEY')
 
 def getHistoryPPOB(user_id):
     try:
