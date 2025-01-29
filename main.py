@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request
 from sqlalchemy import or_
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -6,17 +7,19 @@ from apps.models import TransactionPPOB, TransactionSocialMedia, db, User
 import requests
 from apps import create_app
 import hashlib
+from dotenv import load_dotenv
+load_dotenv()
 
 app = create_app()
 
-DIGIFLAZZ_API_URL = 'https://api.digiflazz.com/v1/transaction'
-DIGIFLAZZ_API_KEY = 'a8beff67-cb39-5be2-b4cf-afe22f7e0bab'
-# DIGIFLAZZ_API_KEY = "dev-9790e880-5ce5-11ec-af18-b53e1be9e9ea"
-DIGIFLAZZ_USERNAME = 'biduguopZ9GW'
+DIGIFLAZZ_API_URL = os.getenv('DIGIFLAZZ_API_URL')
+DIGIFLAZZ_API_KEY = os.getenv('DIGIFLAZZ_API_KEY')
+# DIGIFLAZZ_API_KEY = os.getenv()
+DIGIFLAZZ_USERNAME = os.getenv('DIGIFLAZZ_USERNAME')
 
-BUZZERPANEL_API_URL = 'https://buzzerpanel.id/api/json.php'
-BUZZERPANEL_API_KEY = 'kl1fvb5pa4z9te3082su7qrxjcmd6o'
-BUZZERPANEL_SECRET_KEY = 'uYJQ4cMAanFijWO17egthwNGp53HVkBx0PfRS8Kmo9lE2dIrvD'
+BUZZERPANEL_URL = os.getenv('BUZZERPANEL_URL')
+BUZZERPANEL_API_KEY = os.getenv('BUZZERPANEL_API_KEY')
+BUZZERPANEL_SECRET_KEY = os.getenv('BUZZERPANEL_SECRET_KEY')
 
 def generate_sign(username, api_key, ref_id):
     sign_str = f"{username}{api_key}{ref_id}"
@@ -106,7 +109,7 @@ def update_pending_smm():
             }
 
             try:
-                response = requests.post(BUZZERPANEL_API_URL, data=payload)
+                response = requests.post(BUZZERPANEL_URL, data=payload)
                 response.raise_for_status()
 
                 data = response.json()
@@ -121,20 +124,35 @@ def update_pending_smm():
                         transaction.status = transaction_status
                         transaction.start_count = start_count
                         transaction.remains = remains
+                        
+                    elif transaction_status == 'Success':
+                        transaction.status = transaction_status
+                        transaction.start_count = start_count
+                        transaction.remains = remains
+                        
                     elif transaction_status == 'In progress':
                         transaction.status = transaction_status
                         transaction.start_count = start_count
                         transaction.remains = remains
+                        
                     elif transaction_status == 'Partial':
                         transaction.status = transaction_status
                         transaction.start_count = start_count
                         transaction.remains = remains
-
                         user = User.query.get(transaction.user_id)
                         if user:
-                            sisa = transaction.price/1000 * remains
-                            user.balance += sisa
-
+                            sisa = transaction.price/1000 * int(remains)
+                            user.saldo += sisa
+                            
+                    elif transaction_status == 'Error':
+                        transaction.status = transaction_status
+                        transaction.start_count = start_count
+                        transaction.remains = remains
+                        user = User.query.get(transaction.user_id)
+                        if user:
+                            sisa = transaction.price/1000 * int(remains)
+                            user.saldo += sisa
+                        
                     db.session.commit()
 
                     print(f"Updated transaction {transaction.id} to status {transaction.status} at {datetime.now()}")
@@ -147,7 +165,7 @@ def update_pending_smm():
 if __name__ == "__main__":
     scheduler = BackgroundScheduler()
     scheduler.add_job(update_pending_transactions, 'interval', minutes=1)
-    scheduler.add_job(update_pending_smm, 'interval', minutes=60)
+    scheduler.add_job(update_pending_smm, 'interval', minutes=1)
     scheduler.start()
     
     try:
