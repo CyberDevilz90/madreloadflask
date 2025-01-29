@@ -1,3 +1,4 @@
+import os
 import requests
 import hashlib
 from flask import jsonify, request
@@ -5,15 +6,17 @@ from datetime import datetime
 from apps import db
 from apps.models import ProductPPOB, ProductSocialMedia, TransactionPPOB, TransactionSocialMedia, RefID, User
 from apps.utils.functions import create_ref_id, generate_sign
+from dotenv import load_dotenv
+load_dotenv()
 
-DIGIFLAZZ_API_URL = 'https://api.digiflazz.com/v1/transaction'
-DIGIFLAZZ_API_KEY = 'a8beff67-cb39-5be2-b4cf-afe22f7e0bab'
-# DIGIFLAZZ_API_KEY = "dev-9790e880-5ce5-11ec-af18-b53e1be9e9ea"
-DIGIFLAZZ_USERNAME = 'biduguopZ9GW'
+DIGIFLAZZ_API_URL = os.getenv('DIGIFLAZZ_API_URL')
+DIGIFLAZZ_API_KEY = os.getenv('DIGIFLAZZ_API_KEY')
+# DIGIFLAZZ_API_KEY = os.getenv()
+DIGIFLAZZ_USERNAME = os.getenv('DIGIFLAZZ_USERNAME')
 
-BUZZERPANEL_URL = 'https://buzzerpanel.id/api/json.php'
-BUZZERPANEL_API_KEY = 'kl1fvb5pa4z9te3082su7qrxjcmd6o'
-BUZZERPANEL_SECRET_KEY = 'uYJQ4cMAanFijWO17egthwNGp53HVkBx0PfRS8Kmo9lE2dIrvD'
+BUZZERPANEL_URL = os.getenv('BUZZERPANEL_URL')
+BUZZERPANEL_API_KEY = os.getenv('BUZZERPANEL_API_KEY')
+BUZZERPANEL_SECRET_KEY = os.getenv('BUZZERPANEL_SECRET_KEY')
 
 
 def perform_transaction_ppob():

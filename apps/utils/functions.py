@@ -1,21 +1,23 @@
+import os
 import requests
 import hashlib
 from flask import jsonify, request
 from apps import db, create_app
 from apps.models import ProductPPOB, ProductSocialMedia, TransactionPPOB, MarginOmset, RefID
 from datetime import datetime
-
+from dotenv import load_dotenv
+load_dotenv()
 current_date = datetime.now().strftime("%d%m%Y")
 counter = 0
 
-DIGIFLAZZ_API_URL = 'https://api.digiflazz.com/v1/transaction'
-DIGIFLAZZ_API_KEY = 'a8beff67-cb39-5be2-b4cf-afe22f7e0bab'
-# DIGIFLAZZ_API_KEY = "dev-9790e880-5ce5-11ec-af18-b53e1be9e9ea"
-DIGIFLAZZ_USERNAME = 'biduguopZ9GW'
+DIGIFLAZZ_API_URL = os.getenv('DIGIFLAZZ_API_URL')
+DIGIFLAZZ_API_KEY = os.getenv('DIGIFLAZZ_API_KEY')
+# DIGIFLAZZ_API_KEY = os.getenv()
+DIGIFLAZZ_USERNAME = os.getenv('DIGIFLAZZ_USERNAME')
 
-BUZZERPANEL_URL = 'https://buzzerpanel.id/api/json.php'
-BUZZERPANEL_API_KEY = 'kl1fvb5pa4z9te3082su7qrxjcmd6o'
-BUZZERPANEL_SECRET_KEY = 'uYJQ4cMAanFijWO17egthwNGp53HVkBx0PfRS8Kmo9lE2dIrvD'
+BUZZERPANEL_URL = os.getenv('BUZZERPANEL_URL')
+BUZZERPANEL_API_KEY = os.getenv('BUZZERPANEL_API_KEY')
+BUZZERPANEL_SECRET_KEY = os.getenv('BUZZERPANEL_SECRET_KEY')
 
 def getMargin():
     try:
@@ -175,6 +177,8 @@ def proxy_buzzer():
     try:
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         response = requests.post(url_buzzerpanel, data=body_buzzerpanel, headers=headers)
+        print("Request Body:", body_buzzerpanel)
+        print("API Response:", response.text)
         return jsonify(response.json())
     except requests.RequestException as e:
         return jsonify({"error": str(e)}), 500
@@ -199,10 +203,11 @@ def handle_input_completion():
         user_id = data.get('userId')
 
         request_data = {
-            "commands": "pln-subscribe",
-            "customer_no": user_id
+            "username": DIGIFLAZZ_USERNAME,
+            "customer_no": user_id,
+            "sign": generate_sign(DIGIFLAZZ_USERNAME, DIGIFLAZZ_API_KEY, user_id)
         }
-        response = requests.post("https://api.digiflazz.com/v1/transaction", json=request_data, headers={
+        response = requests.post("https://api.digiflazz.com/v1/inquiry-pln", json=request_data, headers={
             "Content-Type": "application/json"
         })
         response.raise_for_status()
